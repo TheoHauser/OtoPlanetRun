@@ -13,6 +13,8 @@ public class HelloAnimation extends SimpleApplication {
   Node player;
   private AnimChannel channel;
   private AnimControl control;
+  Node rotationNode;
+  
   public static void main(String[] args) {
     HelloAnimation app = new HelloAnimation();
     app.start();
@@ -23,9 +25,25 @@ public class HelloAnimation extends SimpleApplication {
     /** Add a light source so we can see the model */
     DirectionalLight dl = new DirectionalLight();
     dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
-    rootNode.addLight(dl);  
+    rootNode.addLight(dl);
+    initCam();
     //
     Oto oto = new Oto(this);
     oto.setGroundSpeed(1.5f);
+    
+    rotationNode = new Node("rotationNode");
+    rotationNode.setLocalTranslation(0, 0, 0);
+    rootNode.attachChild(rotationNode);
+    World world = new World(this, rotationNode);
+    
+    
   }
+  
+  public void initCam(){
+        Vector3f cl = new Vector3f(0,20, 16);
+        cam.setLocation(cl);
+        cam.lookAt(new Vector3f(0,0,0), new Vector3f(0,1,0));
+        flyCam.setEnabled(false);
+    }
+  
 }

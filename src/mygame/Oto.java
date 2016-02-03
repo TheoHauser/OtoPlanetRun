@@ -7,6 +7,8 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
@@ -64,6 +66,11 @@ public class Oto {
     private void initModel() {
         otoNode = (Node) sa.getAssetManager().loadModel("Models/Oto/Oto.mesh.xml");
         otoNode.setLocalScale(0.5f);
+        
+        //rotate 180
+        Quaternion q = new Quaternion();
+        q.fromAngleAxis( FastMath.PI , new Vector3f(0,1,0) );  
+        otoNode.setLocalRotation(q);
         sa.getRootNode().attachChild(otoNode);
         //
         // Create a controller and channels.
