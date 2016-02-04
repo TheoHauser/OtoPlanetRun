@@ -45,13 +45,15 @@ public class World {
         world.setLocalTranslation(0,-62,0);
         
         mat = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", sa.getAssetManager().loadTexture("Textures/texture_venus_surface.jpg"));
+        mat.setTexture("ColorMap", sa.getAssetManager().loadTexture("Textures/invertedmap.jpg"));
         //mat.setBoolean("UseMaterialColors", true);  
         //mat.setColor("Diffuse", ColorRGBA.White);
         //mat.setColor("Specular",ColorRGBA.White);
         world.setMaterial(mat);
         
+        Quaternion q   = new Quaternion().fromAngleAxis(FastMath.PI/2, new Vector3f(0,1,0));
         rotNode.attachChild(world);
+        rotNode.setLocalRotation(q);
         sa.getRootNode().attachChild(rotNode);
     }
     
@@ -66,7 +68,7 @@ public class World {
             final WorldControl wc = new WorldControl();
             wc.setSpatial(world);
             Quaternion q = new Quaternion();
-            q.fromAngleAxis((var)+= tpf, new Vector3f(1,0,0));
+            q.fromAngleAxis((var)+= tpf, new Vector3f(0,0,1));
             world.setLocalRotation(q);
         }
         @Override

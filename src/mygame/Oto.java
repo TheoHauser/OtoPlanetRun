@@ -5,6 +5,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -38,6 +39,22 @@ public class Oto {
             }
         }
     };
+    
+    private AnalogListener analogListener = new AnalogListener() {
+        public void onAnalog(String name, float value, float tpf){
+            if(name.equals("Left")){
+                Vector3f v = otoNode.getLocalTranslation();
+                if(!(v.x < -5))
+                    otoNode.setLocalTranslation(v.x - value*10, v.y, v.z);
+            }
+            if(name.equals("Right")){
+                Vector3f v = otoNode.getLocalTranslation();
+                if(!(v.x > 5))
+                    otoNode.setLocalTranslation(v.x + value*10, v.y, v.z);
+            }
+        }
+        
+    };
 
     // -------------------------------------------------------------------------
     public Oto(SimpleApplication sa) {
@@ -58,6 +75,10 @@ public class Oto {
         sa.getInputManager().addMapping("Push", new KeyTrigger(KeyInput.KEY_V));
         sa.getInputManager().addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
         sa.getInputManager().addListener(actionListener, new String[]{"Push", "Jump"});
+        
+        sa.getInputManager().addMapping("Left", new KeyTrigger(KeyInput.KEY_LEFT));
+        sa.getInputManager().addMapping("Right", new KeyTrigger(KeyInput.KEY_RIGHT));
+        sa.getInputManager().addListener(analogListener, new String[]{"Left", "Right"});
     }
 
     // -------------------------------------------------------------------------
@@ -127,17 +148,19 @@ public class Oto {
                     }
                     break;
                 case (STATE_JUMP):
+                    Vector3f pos = otoNode.getLocalTranslation();
                     if (!stateIsInitialized) {
                         stateIsInitialized = true;
                         channel.setAnim("pull");
                     }
                     // Jump
                     float y = FastMath.sin(stateTime * 5);
-                    otoNode.setLocalTranslation(0, y, 0);
+                    otoNode.setLocalTranslation(pos.x, y, pos.z);
                     //
                     // end of state?
+                    pos = otoNode.getLocalTranslation();
                     if (y <= 0.0f) {
-                        otoNode.setLocalTranslation(0, 0, 0);
+                        otoNode.setLocalTranslation(pos.x, 0, pos.z);
                         switchState(STATE_STAND);
                     }
                     break;
@@ -159,6 +182,7 @@ public class Oto {
                     }
                     break;
             }
+            
         }
 
         @Override
