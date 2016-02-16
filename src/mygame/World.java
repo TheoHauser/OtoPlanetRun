@@ -21,7 +21,7 @@ import com.jme3.scene.shape.Sphere;
  *
  * @author Theo
  */
-public class World {
+public class World extends Node{
     SimpleApplication sa;
     Node rotNode;
     Sphere sphere;
@@ -40,20 +40,21 @@ public class World {
     }
     
     private void createWorld(){
-        sphere = new Sphere(100,100,60);
+        sphere = new Sphere(100,100,70);
         world = new Geometry("world", sphere);
-        world.setLocalTranslation(0,-62,0);
+        //world.setLocalTranslation(0,-62,0);
         
         mat = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", sa.getAssetManager().loadTexture("Textures/invertedmap.jpg"));
+        mat.setTexture("ColorMap", sa.getAssetManager().loadTexture("Textures/texture_venus_surface.jpg"));
         //mat.setBoolean("UseMaterialColors", true);  
         //mat.setColor("Diffuse", ColorRGBA.White);
         //mat.setColor("Specular",ColorRGBA.White);
         world.setMaterial(mat);
         
         Quaternion q   = new Quaternion().fromAngleAxis(FastMath.PI/2, new Vector3f(0,1,0));
-        rotNode.attachChild(world);
-        rotNode.setLocalRotation(q);
+        rotNode.attachChild(this);
+        this.attachChild(world);
+        world.setLocalRotation(q);
         sa.getRootNode().attachChild(rotNode);
     }
     
@@ -66,10 +67,10 @@ public class World {
         protected void controlUpdate(float tpf){
                 
             final WorldControl wc = new WorldControl();
-            wc.setSpatial(world);
+            wc.setSpatial(rotNode);
             Quaternion q = new Quaternion();
-            q.fromAngleAxis((var)+= tpf, new Vector3f(0,0,1));
-            world.setLocalRotation(q);
+            q.fromAngleAxis((var)+= tpf, new Vector3f(1,0,0));
+            rotNode.setLocalRotation(q);
         }
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {

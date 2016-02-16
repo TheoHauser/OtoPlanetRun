@@ -14,6 +14,7 @@ public class HelloAnimation extends SimpleApplication {
   private AnimChannel channel;
   private AnimControl control;
   Node rotationNode;
+  Obstacle[] o1 = new Obstacle[30];
   
   public static void main(String[] args) {
     HelloAnimation app = new HelloAnimation();
@@ -32,10 +33,12 @@ public class HelloAnimation extends SimpleApplication {
     oto.setGroundSpeed(1.5f);
     
     rotationNode = new Node("rotationNode");
-    rotationNode.setLocalTranslation(0, 0, 0);
+    rotationNode.setLocalTranslation(0, -72, 0);
     rootNode.attachChild(rotationNode);
     World world = new World(this, rotationNode);
-    
+    for(int i =0; i < o1.length; i++){
+        o1[i] = new Obstacle(this,rotationNode);
+    }
     
   }
   
