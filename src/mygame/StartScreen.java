@@ -51,6 +51,7 @@ public class StartScreen extends AbstractAppState implements ActionListener{
         sm = stateManager;
         sa.clearJMonkey(sa);
         
+        sa.getViewPort().setBackgroundColor(ColorRGBA.Black);
 
         BitmapFont bmf = app.getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         text = new BitmapText(bmf);

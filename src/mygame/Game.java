@@ -10,6 +10,8 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResults;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -18,6 +20,8 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.system.AppSettings;
+import com.jme3.util.SkyFactory;
 
 /**
  *
@@ -37,12 +41,14 @@ public class Game extends AbstractAppState {
     int obn1 = 0;
     int numColl = 0;
     float score= 0;
+    boolean paused = false;
     
     Game game = this;
     
+    BitmapText pauseText, scoreText;
+    
     private ActionListener actionListener = new ActionListener() {
         public void onAction(String name, boolean keyPressed, float tpf) {
-            boolean paused = false;
             if (keyPressed) {
                 if (name.equals("Pause")) {
                     if(!paused){
@@ -77,6 +83,8 @@ public class Game extends AbstractAppState {
         res = new CollisionResults();
         
         sa.getViewPort().setBackgroundColor(ColorRGBA.LightGray);  
+        sa.getRootNode().attachChild(SkyFactory.createSky(sa.getAssetManager(), 
+                "Textures/spaceBox.png", false));
         /** Add a light source so we can see the model */
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
@@ -95,6 +103,13 @@ public class Game extends AbstractAppState {
         for(int i =0; i < o1.length; i++){
             o1[i] = new Obstacle(sa,rotationNode);
         }
+        
+        BitmapFont bmf = app.getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        pauseText = new BitmapText(bmf);
+        pauseText.setSize(bmf.getCharSet().getRenderedSize() * 10);
+        pauseText.setColor(ColorRGBA.Green);
+        pauseText.setText("To resume press p");
+        
     }
     private void initCam(){
         Vector3f cl = new Vector3f(0,20, 16);
@@ -110,27 +125,48 @@ public class Game extends AbstractAppState {
         im.addListener(actionListener, "Pause", "Quit");
     }
     
-//    @Override
-//    public void setEnabled(boolean en){
-//        super.setEnabled(en);
-//        if(en){
-//            
-//        }
-//        else{
-//            
-//        }
-//    }
+    @Override
+    public void setEnabled(boolean en){
+        super.setEnabled(en);
+        if(!en){
+            sa.getGuiNode().attachChild(pauseText);
+            AppSettings s = sa.getSettings();
+            float lineY = s.getHeight() / 2; 
+            float lineX = (s.getWidth() - pauseText.getLineWidth()) / 2;
+            pauseText.setLocalTranslation(lineX, lineY, 0f);
+        }
+        else{
+            sa.getGuiNode().detachChild(pauseText);
+        }
+    }
     
     @Override
     public void update(float tpf) {
         if(this.isEnabled()){
             checkCollision();
-            if(numColl>15){
+            if(numColl>=15){
                 endGame();
             }
             score = score+tpf;
         }
+        showScore();
 
+    }
+    
+    private void showScore(){
+        sa.getGuiNode().detachAllChildren();
+        BitmapFont bmf = sa.getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        scoreText = new BitmapText(bmf);
+        scoreText.setSize(bmf.getCharSet().getRenderedSize()*2);
+        scoreText.setColor(ColorRGBA.White);
+        scoreText.setText("Hits: "+ numColl + "\nScore: "+ score);
+        
+        sa.getGuiNode().attachChild(scoreText);
+        
+        AppSettings s = sa.getSettings();
+        float lineY = s.getHeight(); 
+        float lineX = (s.getWidth() - pauseText.getLineWidth()) / 6;
+        scoreText.setLocalTranslation(lineX, lineY, 0f);
     }
     
     private void endGame(){
