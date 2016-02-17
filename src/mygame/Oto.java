@@ -29,6 +29,7 @@ public class Oto {
     Node otoNode;
     Control otoControl;
     private float groundSpeed = 0.0f;
+    boolean isEnabled = true;
     //
     // -------------------------------------------------------------------------
     // the key action listener: set requested state
@@ -45,12 +46,12 @@ public class Oto {
             if(name.equals("Left")){
                 Vector3f v = otoNode.getLocalTranslation();
                 if(!(v.x < -5))
-                    otoNode.setLocalTranslation(v.x - value*10, v.y, v.z);
+                    otoNode.setLocalTranslation(v.x - value*15, v.y, v.z);
             }
             if(name.equals("Right")){
                 Vector3f v = otoNode.getLocalTranslation();
                 if(!(v.x > 5))
-                    otoNode.setLocalTranslation(v.x + value*10, v.y, v.z);
+                    otoNode.setLocalTranslation(v.x + value*15, v.y, v.z);
             }
         }
         
@@ -103,6 +104,10 @@ public class Oto {
         otoControl = new OtoControl();
         otoNode.addControl(otoControl);
     }
+    
+    public void setEnabled(boolean en){
+        isEnabled = en;
+    }
 
     // -------------------------------------------------------------------------
     // OtoControl
@@ -122,67 +127,68 @@ public class Oto {
         // ---------------------------------------------------------------------
         @Override
         protected void controlUpdate(float tpf) {
-            stateTime += tpf;
-            // state machine
-            String reqState = requestedState;
-            requestedState = "";
-            
-            // just for debugging purpose: toggle ground speed
-            if (reqState.equals("Push")){
-                groundSpeed=groundSpeed>0?0:1.0f;
+            if(isEnabled){
+                stateTime += tpf;
+                // state machine
+                String reqState = requestedState;
+                requestedState = "";
+
+                // just for debugging purpose: toggle ground speed
+                if (reqState.equals("Push")){
+                    groundSpeed=groundSpeed>0?0:1.0f;
+                }
+
+                // ----------------------------------------
+                switch (state) {
+                    case (STATE_STAND):
+                        if (!stateIsInitialized) {
+                            stateIsInitialized = true;
+                            channel.setAnim("stand",0.0f);
+                        }
+                        if (reqState.equals("Jump")) {
+                            switchState(STATE_JUMP);
+                        }//
+                        // if the earth spins, immediately switch to walk.
+                        else if (groundSpeed > 0.0f) {
+                            switchState(STATE_WALK);
+                        }
+                        break;
+                    case (STATE_JUMP):
+                        Vector3f pos = otoNode.getLocalTranslation();
+                        if (!stateIsInitialized) {
+                            stateIsInitialized = true;
+                            channel.setAnim("pull");
+                        }
+                        // Jump
+                        float y = FastMath.sin(stateTime * 5);
+                        otoNode.setLocalTranslation(pos.x, y*3, pos.z);
+                        //
+                        // end of state?
+                        pos = otoNode.getLocalTranslation();
+                        if (y <= 0.0f) {
+                            otoNode.setLocalTranslation(pos.x, 0, pos.z);
+                            switchState(STATE_STAND);
+                        }
+                        break;
+                    case (STATE_WALK):
+                        if (!stateIsInitialized) {
+                            stateIsInitialized = true;
+                            channel.setAnim("Walk");
+                            channel.setSpeed(groundSpeed);
+                        }
+                        // state action: adjust to groundspeed
+                            channel.setSpeed(groundSpeed);
+                        //
+                        // end of state?
+                        if (groundSpeed == 0.0f) {
+                            switchState(STATE_STAND);
+                        }
+                        if (reqState.equals("Jump")) {
+                            switchState(STATE_JUMP);
+                        }
+                        break;
+                }
             }
-            
-            // ----------------------------------------
-            switch (state) {
-                case (STATE_STAND):
-                    if (!stateIsInitialized) {
-                        stateIsInitialized = true;
-                        channel.setAnim("stand",0.0f);
-                    }
-                    if (reqState.equals("Jump")) {
-                        switchState(STATE_JUMP);
-                    }//
-                    // if the earth spins, immediately switch to walk.
-                    else if (groundSpeed > 0.0f) {
-                        switchState(STATE_WALK);
-                    }
-                    break;
-                case (STATE_JUMP):
-                    Vector3f pos = otoNode.getLocalTranslation();
-                    if (!stateIsInitialized) {
-                        stateIsInitialized = true;
-                        channel.setAnim("pull");
-                    }
-                    // Jump
-                    float y = FastMath.sin(stateTime * 5);
-                    otoNode.setLocalTranslation(pos.x, y, pos.z);
-                    //
-                    // end of state?
-                    pos = otoNode.getLocalTranslation();
-                    if (y <= 0.0f) {
-                        otoNode.setLocalTranslation(pos.x, 0, pos.z);
-                        switchState(STATE_STAND);
-                    }
-                    break;
-                case (STATE_WALK):
-                    if (!stateIsInitialized) {
-                        stateIsInitialized = true;
-                        channel.setAnim("Walk");
-                        channel.setSpeed(groundSpeed);
-                    }
-                    // state action: adjust to groundspeed
-                        channel.setSpeed(groundSpeed);
-                    //
-                    // end of state?
-                    if (groundSpeed == 0.0f) {
-                        switchState(STATE_STAND);
-                    }
-                    if (reqState.equals("Jump")) {
-                        switchState(STATE_JUMP);
-                    }
-                    break;
-            }
-            
         }
 
         @Override

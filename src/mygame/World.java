@@ -28,6 +28,7 @@ public class World extends Node{
     Geometry world;
     Material mat; 
     WorldControl wc;
+    boolean isEnabled = true;
     
     public World(SimpleApplication s, Node rotationNode){
         sa = s;
@@ -58,6 +59,10 @@ public class World extends Node{
         sa.getRootNode().attachChild(rotNode);
     }
     
+    public void setEnabled(boolean en){
+        isEnabled = en;
+    }
+    
     public void setRotationSpeed(){
         
     }
@@ -65,12 +70,13 @@ public class World extends Node{
         float var =0;
         @Override
         protected void controlUpdate(float tpf){
-                
-            final WorldControl wc = new WorldControl();
-            wc.setSpatial(rotNode);
-            Quaternion q = new Quaternion();
-            q.fromAngleAxis((var)+= tpf, new Vector3f(1,0,0));
-            rotNode.setLocalRotation(q);
+            if(isEnabled){    
+                final WorldControl wc = new WorldControl();
+                wc.setSpatial(rotNode);
+                Quaternion q = new Quaternion();
+                q.fromAngleAxis((var)+= 0.5*tpf, new Vector3f(1,0,0));
+                rotNode.setLocalRotation(q);
+            }
         }
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {

@@ -19,14 +19,13 @@ import com.jme3.scene.shape.Sphere;
  * @author hauser2016
  */
 public class Obstacle{
-    Sphere rock = new Sphere(30,30,1f);
+    Sphere rock = new Sphere(5,5,1f);
     Geometry r;
     Vector3f pos;
     Node obs;
-    
+
     public Obstacle(SimpleApplication sa, Node rotNode){
         Material mat = new Material(sa.getAssetManager(),"Common/MatDefs/Misc/Unshaded.j3md");
-        //Node obs = (Node) sa.getAssetManager().loadModel("/Textures/Terrain/Rock.j3m");
         mat.setColor("Color", ColorRGBA.Blue);
         
         r = new Geometry("obstacle", rock);
